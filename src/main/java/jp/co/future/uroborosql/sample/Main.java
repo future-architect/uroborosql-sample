@@ -95,7 +95,7 @@ public class Main {
 				List<Map<String, String>> deptList = getDataByFile(Paths.get("src/main/resources/data/department.tsv"));
 				SqlUpdate deptUpdate = agent.update("department/insert_department");
 				deptList.forEach(row -> {
-					row.forEach((key, val) -> deptUpdate.param(key, val));
+					row.forEach(deptUpdate::param);
 					deptUpdate.addBatch();
 				});
 				int[] deptCount = deptUpdate.batch();
@@ -107,7 +107,7 @@ public class Main {
 				List<Map<String, String>> empList = getDataByFile(Paths.get("src/main/resources/data/employee.tsv"));
 				SqlUpdate empUpdate = agent.update("employee/insert_employee");
 				empList.forEach(row -> {
-					row.forEach((key, val) -> empUpdate.param(key, val));
+					row.forEach(empUpdate::param);
 					empUpdate.addBatch();
 				});
 				int[] empCount = empUpdate.batch();
@@ -119,7 +119,7 @@ public class Main {
 				List<Map<String, String>> deptEmpList = getDataByFile(Paths.get("src/main/resources/data/dept_emp.tsv"));
 				SqlUpdate deptEmpUpdate = agent.update("relation/insert_dept_emp");
 				deptEmpList.forEach(row -> {
-					row.forEach((key, val) -> deptEmpUpdate.param(key, val));
+					row.forEach(deptEmpUpdate::param);
 					deptEmpUpdate.addBatch();
 				});
 				int[] deptEmpCount = deptEmpUpdate.batch();
