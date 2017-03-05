@@ -10,4 +10,4 @@
 `mvn compile exec:java`
 
 ## show application code
-src/main/java/jp/co/future/uroborosql/sample/main.java is MainClass.
+[src/main/java/jp/co/future/uroborosql/sample/main.java](https://github.com/future-architect/uroborosql-sample/blob/master/src/main/java/jp/co/future/uroborosql/sample/Main.java) is MainClass.
