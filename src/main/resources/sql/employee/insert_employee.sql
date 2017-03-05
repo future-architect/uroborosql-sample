@@ -12,6 +12,6 @@ INTO
 	/*emp_no*/1
 ,	/*first_name*/'Bob'
 ,	/*last_name*/'Smith'
-,	/*birth_date*/'1990-10-10 00:00:00'
+,	/*birth_date*/'1990-10-10'
 ,	/*gender*/'M'
 )

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,9 @@ import java.util.Map;
 import jp.co.future.uroborosql.SqlAgent;
 import jp.co.future.uroborosql.config.DefaultSqlConfig;
 import jp.co.future.uroborosql.config.SqlConfig;
+import jp.co.future.uroborosql.context.SqlContextFactory;
 import jp.co.future.uroborosql.fluent.SqlUpdate;
+import jp.co.future.uroborosql.sample.type.Gender;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -34,7 +37,7 @@ public class Main {
 
 	public static void main(final String... args) throws Exception {
 		// create SqlConfig
-		SqlConfig config = DefaultSqlConfig.getConfig("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+		SqlConfig config = createSqlConfig();
 
 		// create SqlAgent. SqlAgent implements AutoClosable.
 		try (SqlAgent agent = config.createAgent()) {
@@ -62,13 +65,16 @@ public class Main {
 			// no parameter : バインドパラメータ指定なしで検索（BEGIN-ENDで囲まれた範囲内のIF条件がすべてfalseのため、BEGIN-ENDの中が削除される）
 			agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
 
-			// add bind list parameter : バインドパラメータ（IN句用）を指定して検索
-			agent.query("employee/select_employee").paramList("gender_list", "F").stream()
-					.forEachOrdered(m -> log(toS(m)));
-
 			// add bind date parameter : バインドパラメータ（日付型）を指定して検索
 			agent.query("employee/select_employee").paramList("birth_date_from", LocalDate.of(1990, 1, 1)).stream()
 					.forEachOrdered(m -> log(toS(m)));
+
+			// add bind list parameter : バインドパラメータ（IN句用）を指定して検索
+			agent.query("employee/select_employee").paramList("gender_list", Gender.Female).stream()
+					.forEachOrdered(m -> log(toS(m)));
+
+			// use sql enum constant : SQL上でEnum定数を私用した検索
+			agent.query("employee/select_employee").param("female", true).stream().forEachOrdered(m -> log(toS(m)));
 
 			log("delete tables with sql literal");
 			// update with sql literal
@@ -130,6 +136,21 @@ public class Main {
 			agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
 		}
 
+	}
+
+	/**
+	 * Create and setting SqlConfig
+	 * @return SqlConfig
+	 */
+	private static SqlConfig createSqlConfig() {
+		SqlConfig config = DefaultSqlConfig.getConfig("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+
+		// set Enum Constant
+		SqlContextFactory sqlContextFactory = config.getSqlContextFactory();
+		sqlContextFactory.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName()));
+		sqlContextFactory.initialize();
+
+		return config;
 	}
 
 	/**

@@ -8,7 +8,8 @@ SELECT
 ,	EMP.BIRTH_DATE	AS	BIRTH_DATE
 ,	EMP.GENDER		AS	GENDER
 FROM
-	EMPLOYEE	EMP	/*BEGIN*/
+	EMPLOYEE	EMP
+/*BEGIN*/
 WHERE
 /*IF SF.isNotEmpty(emp_no)*/
 AND	EMP.EMP_NO		=	/*emp_no*/1
@@ -20,12 +21,15 @@ AND	EMP.FIRST_NAME	=	/*first_name*/'Bob'
 AND	EMP.LAST_NAME	=	/*last_name*/'Smith'
 /*END*/
 /*IF SF.isNotEmpty(birth_date_from)*/
-AND	EMP.BIRTH_DATE	>=	/*birth_date_from*/'1990-10-10 00:00:00'
+AND	EMP.BIRTH_DATE	>=	/*birth_date_from*/'1990-10-10'
 /*END*/
 /*IF SF.isNotEmpty(birth_date_to)*/
-AND	EMP.BIRTH_DATE	<	/*birth_date_to*/'1990-10-10 00:00:00'
+AND	EMP.BIRTH_DATE	<	/*birth_date_to*/'1990-10-10'
 /*END*/
 /*IF gender_list != null*/
 AND	EMP.GENDER		IN	/*gender_list*/('M')
+/*END*/
+/*IF female != null and female*/
+AND	EMP.GENDER		=	/*#CLS_GENDER_FEMALE*/'M'
 /*END*/
 /*END*/
