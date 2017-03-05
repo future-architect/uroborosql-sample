@@ -86,21 +86,88 @@ encoding/<project>=UTF-8
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.5.0</version>
-				<configuration>
-					<workingDirectory>${basedir}</workingDirectory>
-					<mainClass>jp.co.future.uroborosql.sample.Main</mainClass>
-				</configuration>
 				<executions>
 					<execution>
-						<id>runMain</id>
+						<id>repl</id>
 						<goals>
 							<goal>java</goal>
 						</goals>
+						<configuration>
+							<workingDirectory>${basedir}</workingDirectory>
+							<mainClass>jp.co.future.uroborosql.client.SqlREPL</mainClass>
+							<arguments>
+								<argument>REPL/repl.properties</argument>
+							</arguments>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>runMain</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>process-classes</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.5.0</version>
+						<executions>
+							<execution>
+								<id>runMain</id>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<workingDirectory>${basedir}</workingDirectory>
+									<mainClass>jp.co.future.uroborosql.sample.Main</mainClass>
+								</configuration>
+								<phase>process-classes</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>REPL</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>process-classes</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.5.0</version>
+						<executions>
+							<execution>
+								<id>repl</id>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<workingDirectory>${basedir}</workingDirectory>
+									<mainClass>jp.co.future.uroborosql.client.SqlREPL</mainClass>
+									<arguments>
+										<argument>REPL/repl.properties</argument>
+									</arguments>
+								</configuration>
+								<phase>process-classes</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>
