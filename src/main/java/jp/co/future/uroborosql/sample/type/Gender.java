@@ -1,6 +1,3 @@
-/**
- *
- */
 package jp.co.future.uroborosql.sample.type;
 
 /**
@@ -9,7 +6,7 @@ package jp.co.future.uroborosql.sample.type;
  * @author H.Sugimoto
  */
 public enum Gender {
-	Male("M"), Female("F"), Other("O");
+	MALE("M"), FEMALE("F"), OTHER("O");
 
 	private final String label;
 
@@ -19,7 +16,7 @@ public enum Gender {
 
 	@Override
 	public String toString() {
-		return label;
+		return this.label;
 	}
 
 }
