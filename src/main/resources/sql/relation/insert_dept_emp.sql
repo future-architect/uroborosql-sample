@@ -1,5 +1,4 @@
-INSERT
-/* _SQL_ID_ */
+INSERT /* _SQL_ID_ */
 INTO
 	DEPT_EMP
 (
