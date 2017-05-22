@@ -173,12 +173,12 @@ encoding/<project>=UTF-8
 		<dependency>
 			<groupId>jp.co.future</groupId>
 			<artifactId>uroborosql</artifactId>
-			<version>0.1.0</version>
+			<version>0.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.4.192</version>
+			<version>1.4.195</version>
 		</dependency>
 
 		<!-- optional -->
@@ -186,7 +186,7 @@ encoding/<project>=UTF-8
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.3</version>
 			<optional>true</optional>
 			<exclusions>
 				<exclusion>
