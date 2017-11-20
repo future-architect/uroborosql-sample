@@ -13,17 +13,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import jp.co.future.uroborosql.SqlAgent;
+import jp.co.future.uroborosql.SqlAgentFactoryImpl;
+import jp.co.future.uroborosql.UroboroSQL;
+import jp.co.future.uroborosql.config.SqlConfig;
+import jp.co.future.uroborosql.context.SqlContextFactoryImpl;
+import jp.co.future.uroborosql.fluent.SqlUpdate;
+import jp.co.future.uroborosql.sample.entity.Department;
+import jp.co.future.uroborosql.sample.entity.Employee;
+import jp.co.future.uroborosql.sample.type.Gender;
+import jp.co.future.uroborosql.utils.CaseFormat;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jp.co.future.uroborosql.SqlAgent;
-import jp.co.future.uroborosql.config.DefaultSqlConfig;
-import jp.co.future.uroborosql.config.SqlConfig;
-import jp.co.future.uroborosql.context.SqlContextFactory;
-import jp.co.future.uroborosql.fluent.SqlUpdate;
-import jp.co.future.uroborosql.sample.type.Gender;
 
 /**
  * uroboroSQL Sample Application
@@ -36,10 +40,16 @@ public class Main {
 
 	public static void main(final String... args) throws Exception {
 		// create SqlConfig
-		SqlConfig config = createSqlConfig();
+		SqlConfig config = UroboroSQL
+				.builder("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")
+				.setSqlContextFactory(
+						new SqlContextFactoryImpl().setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage()
+								.getName())))
+				.setSqlAgentFactory(new SqlAgentFactoryImpl().setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE))
+				.build();
 
 		// create SqlAgent. SqlAgent implements AutoClosable.
-		try (SqlAgent agent = config.createAgent()) {
+		try (SqlAgent agent = config.agent()) {
 
 			// create table :  テーブル作成
 			int createCount = agent.update("ddl/create_tables").count();
@@ -56,6 +66,7 @@ public class Main {
 			departments.forEach(data -> log(toS(data)));
 
 			// add bind parameter : バインドパラメータを設定して検索
+			log("select department data (collect) set param(dept_no=1001)");
 			departments = agent.query("department/select_department").param("dept_no", 1001).collect();
 			departments.forEach(data -> log(toS(data)));
 
@@ -66,6 +77,7 @@ public class Main {
 			departmentEntities.forEach(data -> log(toS(data)));
 
 			// add bind parameter : 条件を設定して検索
+			log("select department data with Entity (collect) set param(deptNo=1001)");
 			departmentEntities = agent.query(Department.class).param("deptNo"/* camelCase */, 1001).collect();
 			departmentEntities.forEach(data -> log(toS(data)));
 
@@ -73,6 +85,10 @@ public class Main {
 			log("select department data by key (find)");
 			Department department = agent.find(Department.class, 1002).orElse(null);
 			log(toS(department));
+
+			// find first : findFirstを使用した先頭1件検索
+			log("select first employee data.(Optional)");
+			agent.query("employee/select_employee").findFirst().ifPresent(m -> log(toS(m)));
 
 			// select employee data (stream) : 従業員データ検索（stream API）
 			log("select employee data (stream)");
@@ -118,10 +134,7 @@ public class Main {
 				// department
 				List<Map<String, String>> deptList = getDataByFile(Paths.get("src/main/resources/data/department.tsv"));
 				SqlUpdate deptUpdate = agent.update("department/insert_department");
-				deptList.forEach(row -> {
-					row.forEach(deptUpdate::param);
-					deptUpdate.addBatch();
-				});
+				deptList.forEach(row -> deptUpdate.paramMap(row).addBatch());
 				int[] deptCount = deptUpdate.batch();
 				log("department/insert_department count={}",
 						ToStringBuilder.reflectionToString(deptCount, ToStringStyle.SIMPLE_STYLE));
@@ -130,10 +143,7 @@ public class Main {
 				// employee
 				List<Map<String, String>> empList = getDataByFile(Paths.get("src/main/resources/data/employee.tsv"));
 				SqlUpdate empUpdate = agent.update("employee/insert_employee");
-				empList.forEach(row -> {
-					row.forEach(empUpdate::param);
-					empUpdate.addBatch();
-				});
+				empList.forEach(row -> empUpdate.paramMap(row).addBatch());
 				int[] empCount = empUpdate.batch();
 				log("employee/insert_employee count={}",
 						ToStringBuilder.reflectionToString(empCount, ToStringStyle.SIMPLE_STYLE));
@@ -143,10 +153,7 @@ public class Main {
 				List<Map<String, String>> deptEmpList = getDataByFile(
 						Paths.get("src/main/resources/data/dept_emp.tsv"));
 				SqlUpdate deptEmpUpdate = agent.update("relation/insert_dept_emp");
-				deptEmpList.forEach(row -> {
-					row.forEach(deptEmpUpdate::param);
-					deptEmpUpdate.addBatch();
-				});
+				deptEmpList.forEach(row -> deptEmpUpdate.paramMap(row).addBatch());
 				int[] deptEmpCount = deptEmpUpdate.batch();
 				log("relation/insert_dept_emp count=",
 						ToStringBuilder.reflectionToString(deptEmpCount, ToStringStyle.SIMPLE_STYLE));
@@ -184,23 +191,6 @@ public class Main {
 			log("employee/select_employee after transaction select. employee is empty.");
 			agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
 		}
-
-	}
-
-	/**
-	 * Create and setting SqlConfig
-	 *
-	 * @return SqlConfig
-	 */
-	private static SqlConfig createSqlConfig() {
-		SqlConfig config = DefaultSqlConfig.getConfig("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
-
-		// set Enum Constant
-		SqlContextFactory sqlContextFactory = config.getSqlContextFactory();
-		sqlContextFactory.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName()));
-		sqlContextFactory.initialize();
-
-		return config;
 	}
 
 	/**
