@@ -39,9 +39,11 @@ public class Main {
 		// create SqlConfig
 		SqlConfig config = UroboroSQL
 				.builder("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")
+				// SqlContextFactoryの設定（Enum定数パッケージ設定の追加）
 				.setSqlContextFactory(
 						new SqlContextFactoryImpl().setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage()
 								.getName())))
+				// SqlAgentFactoryの設定（Queryの戻り値のMapのキー文字列のデフォルトCaseFormat設定の追加）
 				.setSqlAgentFactory(new SqlAgentFactoryImpl().setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE))
 				.build();
 
