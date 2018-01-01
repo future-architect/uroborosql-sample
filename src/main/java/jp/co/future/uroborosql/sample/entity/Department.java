@@ -1,4 +1,4 @@
-package jp.co.future.uroborosql.sample;
+package jp.co.future.uroborosql.sample.entity;
 
 /**
  * Entity that can be mapped to department table

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.4.0</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
@@ -174,7 +174,7 @@ encoding/<project>=UTF-8
 		<dependency>
 			<groupId>jp.co.future</groupId>
 			<artifactId>uroborosql</artifactId>
-			<version>0.3.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
