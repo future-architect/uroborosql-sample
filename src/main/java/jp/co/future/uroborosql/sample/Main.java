@@ -18,14 +18,11 @@ import jp.co.future.uroborosql.SqlAgentFactoryImpl;
 import jp.co.future.uroborosql.UroboroSQL;
 import jp.co.future.uroborosql.config.SqlConfig;
 import jp.co.future.uroborosql.context.SqlContextFactoryImpl;
-import jp.co.future.uroborosql.fluent.SqlUpdate;
 import jp.co.future.uroborosql.sample.entity.Department;
 import jp.co.future.uroborosql.sample.entity.Employee;
 import jp.co.future.uroborosql.sample.type.Gender;
 import jp.co.future.uroborosql.utils.CaseFormat;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,34 +126,28 @@ public class Main {
 			agent.requiresNew(() -> {
 
 				log("create new transaction.");
-				// batch insert
+				// batch insert (new v0.5.0)
 				log("department/insert_department batch insert.");
 				// department
-				List<Map<String, String>> deptList = getDataByFile(Paths.get("src/main/resources/data/department.tsv"));
-				SqlUpdate deptUpdate = agent.update("department/insert_department");
-				deptList.forEach(row -> deptUpdate.paramMap(row).addBatch());
-				int[] deptCount = deptUpdate.batch();
-				log("department/insert_department count={}",
-						ToStringBuilder.reflectionToString(deptCount, ToStringStyle.SIMPLE_STYLE));
+				List<Map<String, Object>> deptList = getDataByFile(Paths.get("src/main/resources/data/department.tsv"));
+				int deptCount = agent.batch("department/insert_department").paramStream(deptList.stream()).count();
+				log("department/insert_department count={}", deptCount);
 
 				log("employee/insert_employee batch insert.");
 				// employee
-				List<Map<String, String>> empList = getDataByFile(Paths.get("src/main/resources/data/employee.tsv"));
-				SqlUpdate empUpdate = agent.update("employee/insert_employee");
-				empList.forEach(row -> empUpdate.paramMap(row).addBatch());
-				int[] empCount = empUpdate.batch();
-				log("employee/insert_employee count={}",
-						ToStringBuilder.reflectionToString(empCount, ToStringStyle.SIMPLE_STYLE));
+				// execute by 2 rows
+				List<Map<String, Object>> empList = getDataByFile(Paths.get("src/main/resources/data/employee.tsv"));
+				int empCount = agent.batch("employee/insert_employee").paramStream(empList.stream())
+						.by((ctx, row) -> ctx.batchCount() == 2).count();
+				log("employee/insert_employee count={}", empCount);
 
 				log("relation/insert_dept_emp batch insert.");
 				// dept_emp
-				List<Map<String, String>> deptEmpList = getDataByFile(
-						Paths.get("src/main/resources/data/dept_emp.tsv"));
-				SqlUpdate deptEmpUpdate = agent.update("relation/insert_dept_emp");
-				deptEmpList.forEach(row -> deptEmpUpdate.paramMap(row).addBatch());
-				int[] deptEmpCount = deptEmpUpdate.batch();
-				log("relation/insert_dept_emp count=",
-						ToStringBuilder.reflectionToString(deptEmpCount, ToStringStyle.SIMPLE_STYLE));
+				// log message when batch execute.
+				List<Map<String, Object>> deptEmpList = getDataByFile(Paths.get("src/main/resources/data/dept_emp.tsv"));
+				int deptEmpCount = agent.batch("relation/insert_dept_emp").paramStream(deptEmpList.stream())
+						.batchWhen((agt, ctx) -> log("batch execute.")).count();
+				log("relation/insert_dept_emp count={}", deptEmpCount);
 
 				log("employee/select_employee in transaction select");
 				agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
@@ -199,7 +190,7 @@ public class Main {
 	 * @param filePath TSV file path.
 	 * @return Data List
 	 */
-	private static List<Map<String, String>> getDataByFile(final Path filePath) {
+	private static List<Map<String, Object>> getDataByFile(final Path filePath) {
 		try {
 			List<String> lines = Files.readAllLines(filePath);
 			String[] header = lines.get(0).split("\\t");
@@ -207,7 +198,7 @@ public class Main {
 					.skip(1)
 					.map(s -> s.split("\\t"))
 					.map(data -> IntStream.range(0, header.length)
-							.<Map<String, String>> collect(HashMap::new, (row, i) -> row.put(header[i], data[i]),
+							.<Map<String, Object>> collect(HashMap::new, (row, i) -> row.put(header[i], data[i]),
 									Map::putAll))
 					.collect(Collectors.toList());
 		} catch (IOException e) {
