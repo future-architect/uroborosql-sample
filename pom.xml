@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.1</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
@@ -28,6 +28,16 @@
 		<defaultGoal>package</defaultGoal>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.7.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>

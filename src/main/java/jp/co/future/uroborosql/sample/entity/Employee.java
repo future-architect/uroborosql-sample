@@ -2,23 +2,28 @@ package jp.co.future.uroborosql.sample.entity;
 
 import java.time.LocalDate;
 
+import jp.co.future.uroborosql.mapping.annotations.Table;
+import jp.co.future.uroborosql.mapping.annotations.Version;
 import jp.co.future.uroborosql.sample.type.Gender;
 
 /**
  * Entity that can be mapped to employee table
  */
+@Table(name = "employee")
 public class Employee {
 	private long empNo;
 	private String firstName;
 	private String lastName;
 	private LocalDate birthDate;
 	private Gender gender;
+	@Version
+	private long lockVersion = 0;
 
 	public long getEmpNo() {
 		return this.empNo;
 	}
 
-	public void setEmpNo(long empNo) {
+	public void setEmpNo(final long empNo) {
 		this.empNo = empNo;
 	}
 
@@ -26,7 +31,7 @@ public class Employee {
 		return this.firstName;
 	}
 
-	public void setFirstName(String firstName) {
+	public void setFirstName(final String firstName) {
 		this.firstName = firstName;
 	}
 
@@ -34,7 +39,7 @@ public class Employee {
 		return this.lastName;
 	}
 
-	public void setLastName(String lastName) {
+	public void setLastName(final String lastName) {
 		this.lastName = lastName;
 	}
 
@@ -42,7 +47,7 @@ public class Employee {
 		return this.birthDate;
 	}
 
-	public void setBirthDate(LocalDate birthDate) {
+	public void setBirthDate(final LocalDate birthDate) {
 		this.birthDate = birthDate;
 	}
 
@@ -50,13 +55,22 @@ public class Employee {
 		return this.gender;
 	}
 
-	public void setGender(Gender gender) {
+	public void setGender(final Gender gender) {
 		this.gender = gender;
+	}
+
+	public long getLockVersion() {
+		return this.lockVersion;
+	}
+
+	public void setLockVersion(final long lockVersion) {
+		this.lockVersion = lockVersion;
 	}
 
 	@Override
 	public String toString() {
 		return "Employee [empNo=" + this.empNo + ", firstName=" + this.firstName + ", lastName=" + this.lastName
-				+ ", birthDate=" + this.birthDate + ", gender=" + this.gender + "]";
+				+ ", birthDate=" + this.birthDate + ", gender=" + this.gender + ", lockVersion="
+				+ this.lockVersion + "]";
 	}
 }

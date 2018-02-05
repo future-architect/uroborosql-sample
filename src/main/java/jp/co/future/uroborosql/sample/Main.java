@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import jp.co.future.uroborosql.SqlAgent;
 import jp.co.future.uroborosql.SqlAgentFactoryImpl;
@@ -95,7 +96,7 @@ public class Main {
 			agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
 
 			// add bind date parameter : バインドパラメータ（日付型）を指定して検索
-			agent.query("employee/select_employee").paramList("birth_date_from", LocalDate.of(1990, 1, 1)).stream()
+			agent.query("employee/select_employee").param("birth_date_from", LocalDate.of(1990, 1, 1)).stream()
 					.forEachOrdered(m -> log(toS(m)));
 
 			// add bind list parameter : バインドパラメータ（IN句用）を指定して検索
@@ -131,29 +132,34 @@ public class Main {
 				// batch insert (new v0.5.0)
 				log("department/insert_department batch insert.");
 				// department
-				List<Map<String, Object>> deptList = getDataByFile(Paths.get("src/main/resources/data/department.tsv"));
-				int deptCount = agent.batch("department/insert_department").paramStream(deptList.stream()).count();
+				int deptCount = agent.batch("department/insert_department")
+						.paramStream(getDataByFile(Paths.get("src/main/resources/data/department.tsv"))).count();
 				log("department/insert_department count={}", deptCount);
 
 				log("employee/insert_employee batch insert.");
 				// employee
 				// execute by 2 rows
-				List<Map<String, Object>> empList = getDataByFile(Paths.get("src/main/resources/data/employee.tsv"));
-				int empCount = agent.batch("employee/insert_employee").paramStream(empList.stream())
+				int empCount = agent.batch("employee/insert_employee")
+						.paramStream(getDataByFile(Paths.get("src/main/resources/data/employee.tsv")))
 						.by((ctx, row) -> ctx.batchCount() == 2).count();
 				log("employee/insert_employee count={}", empCount);
 
 				log("relation/insert_dept_emp batch insert.");
 				// dept_emp
 				// log message when batch execute.
-				List<Map<String, Object>> deptEmpList = getDataByFile(Paths.get("src/main/resources/data/dept_emp.tsv"));
-				int deptEmpCount = agent.batch("relation/insert_dept_emp").paramStream(deptEmpList.stream())
+				int deptEmpCount = agent.batch("relation/insert_dept_emp")
+						.paramStream(getDataByFile(Paths.get("src/main/resources/data/dept_emp.tsv")))
 						.batchWhen((agt, ctx) -> log("batch execute.")).count();
 				log("relation/insert_dept_emp count={}", deptEmpCount);
 
 				log("employee/select_employee in transaction select");
 				agent.query("employee/select_employee").stream().forEachOrdered(m -> log(toS(m)));
 
+				log("transaction rollback!");
+				agent.setRollbackOnly();
+			});
+
+			agent.requiresNew(() -> {
 				// insert with Entity
 				log("insert with Entity");
 				Department informationDept = new Department();
@@ -192,7 +198,7 @@ public class Main {
 	 * @param filePath TSV file path.
 	 * @return Data List
 	 */
-	private static List<Map<String, Object>> getDataByFile(final Path filePath) {
+	private static Stream<Map<String, Object>> getDataByFile(final Path filePath) {
 		try {
 			List<String> lines = Files.readAllLines(filePath);
 			String[] header = lines.get(0).split("\\t");
@@ -201,8 +207,7 @@ public class Main {
 					.map(s -> s.split("\\t"))
 					.map(data -> IntStream.range(0, header.length)
 							.<Map<String, Object>> collect(HashMap::new, (row, i) -> row.put(header[i], data[i]),
-									Map::putAll))
-					.collect(Collectors.toList());
+									Map::putAll));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new UncheckedIOException(e);
