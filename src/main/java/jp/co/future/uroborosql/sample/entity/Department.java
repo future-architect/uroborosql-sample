@@ -1,5 +1,8 @@
 package jp.co.future.uroborosql.sample.entity;
 
+import jp.co.future.uroborosql.enums.GenerationType;
+import jp.co.future.uroborosql.mapping.annotations.GeneratedValue;
+import jp.co.future.uroborosql.mapping.annotations.Id;
 import jp.co.future.uroborosql.mapping.annotations.Table;
 import jp.co.future.uroborosql.mapping.annotations.Version;
 
@@ -8,8 +11,12 @@ import jp.co.future.uroborosql.mapping.annotations.Version;
  */
 @Table(name = "department")
 public class Department {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long deptNo;
+
 	private String deptName;
+
 	@Version
 	private long lockVersion;
 

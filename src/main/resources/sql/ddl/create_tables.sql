@@ -2,12 +2,12 @@
 drop table if exists employee cascade;
 
 create table employee (
-  emp_no NUMBER(11) not null
-  , first_name VARCHAR(20) not null
-  , last_name VARCHAR(20) not null
-  , birth_date DATE not null
-  , gender CHAR(1) not null
-  , lock_version NUMBER(10) not null default 0
+  emp_no number(6) auto_increment
+  , first_name varchar(20) not null
+  , last_name varchar(20) not null
+  , birth_date date not null
+  , gender char(1) not null
+  , lock_version number(10) not null default 0
   , constraint employee_PKC primary key (emp_no)
 ) ;
 
@@ -15,8 +15,8 @@ create table employee (
 drop table if exists dept_emp cascade;
 
 create table dept_emp (
-  emp_no NUMBER(11) not null
-  , dept_no NUMBER(4) not null
+  emp_no number(6) not null
+  , dept_no number(4) not null
   , constraint dept_emp_PKC primary key (emp_no,dept_no)
 ) ;
 
@@ -24,9 +24,9 @@ create table dept_emp (
 drop table if exists department cascade;
 
 create table department (
-  dept_no NUMBER(4) not null
-  , dept_name VARCHAR(100) not null
-  , lock_version NUMBER(10) not null default 0
+  dept_no number(4) auto_increment
+  , dept_name varchar(100) not null
+  , lock_version number(10) not null default 0
   , constraint department_PKC primary key (dept_no)
 ) ;
 
