@@ -2,6 +2,9 @@ package jp.co.future.uroborosql.sample.entity;
 
 import java.time.LocalDate;
 
+import jp.co.future.uroborosql.enums.GenerationType;
+import jp.co.future.uroborosql.mapping.annotations.GeneratedValue;
+import jp.co.future.uroborosql.mapping.annotations.Id;
 import jp.co.future.uroborosql.mapping.annotations.Table;
 import jp.co.future.uroborosql.mapping.annotations.Version;
 import jp.co.future.uroborosql.sample.type.Gender;
@@ -11,11 +14,18 @@ import jp.co.future.uroborosql.sample.type.Gender;
  */
 @Table(name = "employee")
 public class Employee {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long empNo;
+
 	private String firstName;
+
 	private String lastName;
+
 	private LocalDate birthDate;
+
 	private Gender gender;
+
 	@Version
 	private long lockVersion = 0;
 

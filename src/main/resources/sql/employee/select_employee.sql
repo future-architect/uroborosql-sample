@@ -1,33 +1,33 @@
-SELECT /* _SQL_ID_ */
-	EMP.EMP_NO			AS	EMP_NO
-,	EMP.FIRST_NAME		AS	FIRST_NAME
-,	EMP.LAST_NAME		AS	LAST_NAME
-,	EMP.BIRTH_DATE		AS	BIRTH_DATE
-,	EMP.GENDER			AS	GENDER
-,	EMP.LOCK_VERSION	AS	LOCK_VERSION
-FROM
-	EMPLOYEE	EMP
+select /* _SQL_ID_ */
+	emp.emp_no			as	emp_no
+,	emp.first_name		as	first_name
+,	emp.last_name		as	last_name
+,	emp.birth_date		as	birth_date
+,	emp.gender			as	gender
+,	emp.lock_version	as	lock_version
+from
+	employee	emp
 /*BEGIN*/
-WHERE
-/*IF SF.isNotEmpty(emp_no)*/
-AND	EMP.EMP_NO		=	/*emp_no*/1
+where
+/*IF SF.isNotEmpty(empNo)*/
+and	emp.emp_no		=	/*empNo*/1
 /*END*/
-/*IF SF.isNotEmpty(first_name)*/
-AND	EMP.FIRST_NAME	=	/*first_name*/'Bob'
+/*IF SF.isNotEmpty(firstName)*/
+and	emp.first_name	=	/*firstName*/'Bob'
 /*END*/
-/*IF SF.isNotEmpty(last_name)*/
-AND	EMP.LAST_NAME	=	/*last_name*/'Smith'
+/*IF SF.isNotEmpty(lastName)*/
+and	emp.last_name	=	/*lastName*/'Smith'
 /*END*/
-/*IF SF.isNotEmpty(birth_date_from)*/
-AND	EMP.BIRTH_DATE	>=	/*birth_date_from*/'1990-10-10'
+/*IF SF.isNotEmpty(birthDateFrom)*/
+and	emp.birth_date	>=	/*birthDateFrom*/'1990-10-10'
 /*END*/
-/*IF SF.isNotEmpty(birth_date_to)*/
-AND	EMP.BIRTH_DATE	<	/*birth_date_to*/'1990-10-10'
+/*IF SF.isNotEmpty(birthDateTo)*/
+and	emp.birth_date	<	/*birthDateTo*/'1990-10-10'
 /*END*/
-/*IF gender_list != null*/
-AND	EMP.GENDER		IN	/*gender_list*/('M')
+/*IF genderList != null*/
+and	emp.gender		IN	/*genderList*/('M')
 /*END*/
 /*IF female != null and female*/
-AND	EMP.GENDER		=	/*#CLS_GENDER_FEMALE*/'M'
+and	emp.gender		=	/*#CLS_GENDER_FEMALE*/'M'
 /*END*/
 /*END*/

@@ -1,10 +1,10 @@
-INSERT /* _SQL_ID_ */
-INTO
-	DEPT_EMP
+insert /* _SQL_ID_ */
+into
+	dept_emp
 (
-	EMP_NO
-,	DEPT_NO
-) VALUES (
-	/*emp_no*/1
-,	/*dept_no*/1
+	emp_no
+,	dept_no
+) values (
+	/*empNo*/1
+,	/*deptNo*/1
 )

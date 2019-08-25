@@ -12,6 +12,7 @@
 
 	<logger name="jp.co.future.uroborosql" level="DEBUG" />
 
+	<logger name="uroborosql-sample" level="DEBUG" />
 
 	<appender name="CoverageLog" class="ch.qos.logback.core.FileAppender">
 		<file>target/coverage.log</file>

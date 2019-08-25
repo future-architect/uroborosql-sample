@@ -1,15 +1,15 @@
-SELECT /* _SQL_ID_ */
-	DEPT.DEPT_NO		AS	DEPT_NO
-,	DEPT.DEPT_NAME		AS	DEPT_NAME
-,	DEPT.LOCK_VERSION	AS	LOCK_VERSION
-FROM
-	DEPARTMENT	DEPT
+select /* _SQL_ID_ */
+	dept.dept_no		as	dept_no
+,	dept.dept_name		as	dept_name
+,	dept.lock_version	as	lock_version
+from
+	department	dept
 /*BEGIN*/
-WHERE
-/*IF SF.isNotEmpty(dept_no)*/
-AND	DEPT.DEPT_NO	=	/*dept_no*/1
+where
+/*IF SF.isNotEmpty(deptNo)*/
+and	dept.dept_no	=	/*deptNo*/1
 /*END*/
-/*IF SF.isNotEmpty(dept_name)*/
-AND	DEPT.DEPT_NAME	=	/*dept_name*/'sample'
+/*IF SF.isNotEmpty(deptName)*/
+and	dept.dept_name	=	/*deptName*/'sample'
 /*END*/
 /*END*/

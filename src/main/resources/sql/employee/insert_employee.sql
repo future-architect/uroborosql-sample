@@ -1,18 +1,16 @@
-INSERT /* _SQL_ID_ */
-INTO
-	EMPLOYEE
+insert /* _SQL_ID_ */
+into
+	employee
 (
-	EMP_NO
-,	FIRST_NAME
-,	LAST_NAME
-,	BIRTH_DATE
-,	GENDER
-,	LOCK_VERSION
-) VALUES (
-	/*emp_no*/1
-,	/*first_name*/'Bob'
-,	/*last_name*/'Smith'
-,	/*birth_date*/'1990-10-10'
+	first_name
+,	last_name
+,	birth_date
+,	gender
+,	lock_version
+) values (
+	/*firstName*/'Bob'
+,	/*lastName*/'Smith'
+,	/*birthDate*/'1990-10-10'
 ,	/*gender*/'M'
 ,	0
 )
