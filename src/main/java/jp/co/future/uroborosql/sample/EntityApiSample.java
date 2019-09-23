@@ -1,5 +1,6 @@
 package jp.co.future.uroborosql.sample;
 
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,8 @@ import jp.co.future.uroborosql.config.SqlConfig;
 import jp.co.future.uroborosql.context.SqlContextFactoryImpl;
 import jp.co.future.uroborosql.enums.InsertsType;
 import jp.co.future.uroborosql.exception.UroborosqlRuntimeException;
+import jp.co.future.uroborosql.filter.DumpResultSqlFilter;
+import jp.co.future.uroborosql.filter.SqlFilterManagerImpl;
 import jp.co.future.uroborosql.sample.entity.Department;
 import jp.co.future.uroborosql.sample.entity.DeptEmp;
 import jp.co.future.uroborosql.sample.entity.Employee;
@@ -35,12 +38,15 @@ public class EntityApiSample extends AbstractApiSample {
 				// SqlContextFactoryの設定（Enum定数パッケージ設定の追加）
 				.setSqlContextFactory(
 						new SqlContextFactoryImpl()
-								.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName())))
+								.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName()))
+								.setDefaultResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE))
 				// SqlAgentFactoryの設定（Queryの戻り値のMapのキー文字列のデフォルトCaseFormat設定の追加）
-				.setSqlAgentFactory(new SqlAgentFactoryImpl().setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE))
+				.setSqlAgentFactory(new SqlAgentFactoryImpl()
+						.setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE)
+						.setForceUpdateWithinTransaction(true))
 				.setSqlManager(new NioSqlManagerImpl(false))
+				.setSqlFilterManager(new SqlFilterManagerImpl().addSqlFilter(new DumpResultSqlFilter()))
 				.build();
-		//		config.getSqlFilterManager().addSqlFilter(new DumpResultSqlFilter());
 	}
 
 	public void run() throws Exception {
@@ -51,7 +57,7 @@ public class EntityApiSample extends AbstractApiSample {
 
 		collect();
 
-		findFirst();
+		first();
 
 		stream();
 
@@ -73,13 +79,15 @@ public class EntityApiSample extends AbstractApiSample {
 	 */
 	private void setupTableAndData() {
 		try (SqlAgent agent = config.agent()) {
-			// create table :  テーブル作成
-			int createCount = agent.update("ddl/create_tables").count();
-			log("ddl/create_tables count={}", createCount);
+			agent.required(() -> {
+				// create table :  テーブル作成
+				int createCount = agent.update("ddl/create_tables").count();
+				log("ddl/create_tables count={}", createCount);
 
-			// setup data : 初期データ挿入
-			int setupCount = agent.update("setup/insert_data").count();
-			log("setup/insert_data count={}", setupCount);
+				// setup data : 初期データ挿入
+				int setupCount = agent.update("setup/insert_data").count();
+				log("setup/insert_data count={}", setupCount);
+			});
 		}
 	}
 
@@ -101,11 +109,11 @@ public class EntityApiSample extends AbstractApiSample {
 	}
 
 	/**
-	 * query#findFirst() method sample
+	 * query#first() method sample
 	 */
-	private void findFirst() {
+	private void first() {
 		try (SqlAgent agent = config.agent()) {
-			// find first : findFirstを使用した先頭1件検索
+			// first : firstを使用した先頭1件検索
 			log("select first employee data.(Optional)");
 			agent.query(Employee.class).first().ifPresent(m -> log(toS(m)));
 		}

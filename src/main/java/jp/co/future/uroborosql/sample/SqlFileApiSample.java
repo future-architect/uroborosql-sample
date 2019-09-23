@@ -1,6 +1,7 @@
 package jp.co.future.uroborosql.sample;
 
 import java.nio.file.Paths;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,9 @@ import jp.co.future.uroborosql.SqlAgentFactoryImpl;
 import jp.co.future.uroborosql.UroboroSQL;
 import jp.co.future.uroborosql.config.SqlConfig;
 import jp.co.future.uroborosql.context.SqlContextFactoryImpl;
+import jp.co.future.uroborosql.exception.DataNonUniqueException;
+import jp.co.future.uroborosql.filter.DumpResultSqlFilter;
+import jp.co.future.uroborosql.filter.SqlFilterManagerImpl;
 import jp.co.future.uroborosql.sample.type.Gender;
 import jp.co.future.uroborosql.store.NioSqlManagerImpl;
 import jp.co.future.uroborosql.utils.CaseFormat;
@@ -31,12 +35,15 @@ public class SqlFileApiSample extends AbstractApiSample {
 				// SqlContextFactoryの設定（Enum定数パッケージ設定の追加）
 				.setSqlContextFactory(
 						new SqlContextFactoryImpl()
-								.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName())))
+								.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName()))
+								.setDefaultResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE))
 				// SqlAgentFactoryの設定（Queryの戻り値のMapのキー文字列のデフォルトCaseFormat設定の追加）
-				.setSqlAgentFactory(new SqlAgentFactoryImpl().setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE))
+				.setSqlAgentFactory(new SqlAgentFactoryImpl()
+						.setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE)
+						.setForceUpdateWithinTransaction(true))
 				.setSqlManager(new NioSqlManagerImpl(false))
+				.setSqlFilterManager(new SqlFilterManagerImpl().addSqlFilter(new DumpResultSqlFilter()))
 				.build();
-		//		config.getSqlFilterManager().addSqlFilter(new DumpResultSqlFilter());
 	}
 
 	public void run() throws Exception {
@@ -48,6 +55,8 @@ public class SqlFileApiSample extends AbstractApiSample {
 		collect();
 
 		findFirst();
+
+		findOne();
 
 		stream();
 
@@ -71,13 +80,15 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 */
 	private void setupTableAndData() {
 		try (SqlAgent agent = config.agent()) {
-			// create table :  テーブル作成
-			int createCount = agent.update("ddl/create_tables").count();
-			log("ddl/create_tables count={}", createCount);
+			agent.required(() -> {
+				// create table :  テーブル作成
+				int createCount = agent.update("ddl/create_tables").count();
+				log("ddl/create_tables count={}", createCount);
 
-			// setup data : 初期データ挿入
-			int setupCount = agent.update("setup/insert_data").count();
-			log("setup/insert_data count={}", setupCount);
+				// setup data : 初期データ挿入
+				int setupCount = agent.update("setup/insert_data").count();
+				log("setup/insert_data count={}", setupCount);
+			});
 		}
 	}
 
@@ -110,6 +121,23 @@ public class SqlFileApiSample extends AbstractApiSample {
 	}
 
 	/**
+	 * query#findFirst() method sample
+	 */
+	private void findOne() {
+		try (SqlAgent agent = config.agent()) {
+			// find one : findOneを使用した先頭1件検索
+			log("select first employee data with single row validation. (Optional)");
+
+			try {
+				agent.query("employee/select_employee").findOne();
+			} catch (DataNonUniqueException ex) {
+				log("findOne throw DataNonUniqueException when selected data size > 1.");
+			}
+			agent.query("employee/select_employee").param("empNo", 1).findOne().ifPresent(m -> log(toS(m)));
+		}
+	}
+
+	/**
 	 * query#stream() method sample
 	 */
 	private void stream() {
@@ -124,7 +152,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 					.forEach(m -> log(toS(m)));
 
 			// add bind list parameter : バインドパラメータ（IN句用）を指定して検索
-			agent.query("employee/select_employee").paramList("genderList", Gender.FEMALE).stream()
+			agent.query("employee/select_employee").param("genderList", Arrays.asList(Gender.FEMALE)).stream()
 					.forEach(m -> log(toS(m)));
 
 			// use sql enum constant : SQL上でEnum定数を使用した検索
