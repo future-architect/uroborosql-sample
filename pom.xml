@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>0.14.0</version>
+	<version>0.18.0</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
@@ -178,6 +178,11 @@ encoding/<project>=UTF-8
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+			<version>${spring-expression.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.199</version>
@@ -225,6 +230,7 @@ encoding/<project>=UTF-8
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<src.encoding>${project.build.sourceEncoding}</src.encoding>
 		<doc.encoding>${project.build.sourceEncoding}</doc.encoding>
+		<spring-expression.version>5.2.2.RELEASE</spring-expression.version>
 		<jline.version>3.11.0</jline.version>
 		<jansi.version>1.18</jansi.version>
 	</properties>

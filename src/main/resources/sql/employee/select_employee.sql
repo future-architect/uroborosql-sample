@@ -18,10 +18,10 @@ and	emp.first_name	=	/*firstName*/'Bob'
 /*IF SF.isNotEmpty(lastName)*/
 and	emp.last_name	=	/*lastName*/'Smith'
 /*END*/
-/*IF SF.isNotEmpty(birthDateFrom)*/
+/*IF birthDateFrom != null*/
 and	emp.birth_date	>=	/*birthDateFrom*/'1990-10-10'
 /*END*/
-/*IF SF.isNotEmpty(birthDateTo)*/
+/*IF birthDateTo != null*/
 and	emp.birth_date	<	/*birthDateTo*/'1990-10-10'
 /*END*/
 /*IF genderList != null*/
