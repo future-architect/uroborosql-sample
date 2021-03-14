@@ -146,7 +146,7 @@ public class EntityApiSample extends AbstractApiSample {
 			// select with bind parameter : バインドパラメータを設定して検索
 			log("select employee data (collect) set param(emp_no=1)");
 			long empNo = 1;
-			Employee emp = agent.query(Employee.class).param("empNo", empNo).first()
+			Employee emp = agent.query(Employee.class).equal("empNo", empNo).first()
 					.orElseThrow(UroborosqlRuntimeException::new);
 			log(toS(emp));
 
@@ -155,11 +155,11 @@ public class EntityApiSample extends AbstractApiSample {
 				int count = agent.update(emp);
 				log("update employee count={}", count);
 
-				agent.query(Employee.class).param("empNo", empNo).first().ifPresent(e -> log(toS(e)));
+				agent.query(Employee.class).equal("empNo", empNo).first().ifPresent(e -> log(toS(e)));
 
 				agent.setRollbackOnly();
 			});
-			agent.query(Employee.class).param("empNo", empNo).first().ifPresent(e -> log(toS(e)));
+			agent.query(Employee.class).equal("empNo", empNo).first().ifPresent(e -> log(toS(e)));
 		}
 	}
 
