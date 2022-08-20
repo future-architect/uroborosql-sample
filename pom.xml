@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>0.24.0</version>
+	<version>0.25.0</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
@@ -230,7 +230,7 @@ encoding/<project>=UTF-8
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<src.encoding>${project.build.sourceEncoding}</src.encoding>
 		<doc.encoding>${project.build.sourceEncoding}</doc.encoding>
-		<spring-expression.version>5.2.2.RELEASE</spring-expression.version>
+		<spring-expression.version>5.3.20</spring-expression.version>
 		<jline.version>3.11.0</jline.version>
 		<jansi.version>1.18</jansi.version>
 	</properties>
