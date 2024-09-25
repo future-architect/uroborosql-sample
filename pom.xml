@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>0.26.7</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
@@ -31,17 +31,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.7.0</version>
+					<version>3.12.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
-					<version>1.8</version>
+					<version>3.1.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -107,7 +107,7 @@ encoding/<project>=UTF-8
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.5.0</version>
+						<version>1.6.0</version>
 						<executions>
 							<execution>
 								<id>runMain</id>
@@ -204,7 +204,7 @@ encoding/<project>=UTF-8
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.3</version>
+			<version>1.4.5</version>
 			<optional>true</optional>
 			<exclusions>
 				<exclusion>
@@ -215,24 +215,31 @@ encoding/<project>=UTF-8
 		</dependency>
 
 		<!-- test scope -->
-
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>[4.13.1,)</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<src.encoding>${project.build.sourceEncoding}</src.encoding>
 		<doc.encoding>${project.build.sourceEncoding}</doc.encoding>
-		<spring-expression.version>5.3.20</spring-expression.version>
-		<jline.version>3.11.0</jline.version>
-		<jansi.version>1.18</jansi.version>
+		<spring-expression.version>5.3.24</spring-expression.version>
+		<jline.version>3.21.0</jline.version>
+		<jansi.version>2.4.0</jansi.version>
+		<junit.version>5.9.1</junit.version>
+		<hamcrest.version>2.2</hamcrest.version>
 	</properties>
 
 </project>

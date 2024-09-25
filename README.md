@@ -18,7 +18,7 @@ see [uroboroSQL](https://github.com/future-architect/uroborosql).
 
 ## Requirement
 
-- Java 1.8 or later.
+- Java 11 or later.
 
 ## License
 
