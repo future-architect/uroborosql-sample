@@ -4,19 +4,16 @@ import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
-import jp.co.future.uroborosql.SqlAgent;
-import jp.co.future.uroborosql.SqlAgentFactoryImpl;
+import jp.co.future.uroborosql.SqlAgentProviderImpl;
 import jp.co.future.uroborosql.UroboroSQL;
 import jp.co.future.uroborosql.config.SqlConfig;
-import jp.co.future.uroborosql.context.SqlContextFactoryImpl;
+import jp.co.future.uroborosql.context.ExecutionContextProviderImpl;
+import jp.co.future.uroborosql.event.EventListenerHolder;
+import jp.co.future.uroborosql.event.subscriber.DumpResultEventSubscriber;
 import jp.co.future.uroborosql.exception.DataNonUniqueException;
-import jp.co.future.uroborosql.filter.DumpResultSqlFilter;
-import jp.co.future.uroborosql.filter.SqlFilterManagerImpl;
 import jp.co.future.uroborosql.sample.type.Gender;
-import jp.co.future.uroborosql.store.NioSqlManagerImpl;
+import jp.co.future.uroborosql.store.SqlResourceManagerImpl;
 import jp.co.future.uroborosql.utils.CaseFormat;
 
 /**
@@ -28,21 +25,20 @@ public class SqlFileApiSample extends AbstractApiSample {
 	private final SqlConfig config;
 
 	public SqlFileApiSample() {
-		super();
 		// create SqlConfig
 		config = UroboroSQL
 				.builder("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")
-				// SqlContextFactoryの設定（Enum定数パッケージ設定の追加）
-				.setSqlContextFactory(
-						new SqlContextFactoryImpl()
+				// ExecutionContextProviderの設定（Enum定数パッケージ設定の追加）
+				.setExecutionContextProvider(
+						new ExecutionContextProviderImpl()
 								.setEnumConstantPackageNames(Arrays.asList(Gender.class.getPackage().getName()))
 								.setDefaultResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE))
-				// SqlAgentFactoryの設定（Queryの戻り値のMapのキー文字列のデフォルトCaseFormat設定の追加）
-				.setSqlAgentFactory(new SqlAgentFactoryImpl()
+				// SqlAgentProviderの設定（Queryの戻り値のMapのキー文字列のデフォルトCaseFormat設定の追加）
+				.setSqlAgentProvider(new SqlAgentProviderImpl()
 						.setDefaultMapKeyCaseFormat(CaseFormat.CAMEL_CASE)
 						.setForceUpdateWithinTransaction(true))
-				.setSqlManager(new NioSqlManagerImpl(false))
-				.setSqlFilterManager(new SqlFilterManagerImpl().addSqlFilter(new DumpResultSqlFilter()))
+				.setSqlResourceManager(new SqlResourceManagerImpl())
+				.setEventListenerHolder(new EventListenerHolder().addEventSubscriber(new DumpResultEventSubscriber()))
 				.build();
 	}
 
@@ -79,14 +75,14 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * @param agent SqlAgent
 	 */
 	private void setupTableAndData() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			agent.required(() -> {
 				// create table :  テーブル作成
-				int createCount = agent.update("ddl/create_tables").count();
+				var createCount = agent.update("ddl/create_tables").count();
 				log("ddl/create_tables count={}", createCount);
 
 				// setup data : 初期データ挿入
-				int setupCount = agent.update("setup/insert_data").count();
+				var setupCount = agent.update("setup/insert_data").count();
 				log("setup/insert_data count={}", setupCount);
 			});
 		}
@@ -96,11 +92,11 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * query#collect() method sample
 	 */
 	private void collect() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// select department data (collect) : 部署データ検索（collect API）
 			log("select department data (collect)");
 			// no parameter : バインドパラメータ指定なしで検索
-			List<Map<String, Object>> deps = agent.query("department/select_department").collect();
+			var deps = agent.query("department/select_department").collect();
 			deps.forEach(data -> log(toS(data)));
 
 			// add bind parameter : バインドパラメータを設定して検索
@@ -113,7 +109,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * query#findFirst() method sample
 	 */
 	private void findFirst() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// find first : findFirstを使用した先頭1件検索
 			log("select first employee data.(Optional)");
 			agent.query("employee/select_employee").findFirst().ifPresent(m -> log(toS(m)));
@@ -124,7 +120,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * query#findFirst() method sample
 	 */
 	private void findOne() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// find one : findOneを使用した先頭1件検索
 			log("select first employee data with single row validation. (Optional)");
 
@@ -141,7 +137,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * query#stream() method sample
 	 */
 	private void stream() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// select employee data (stream) : 従業員データ検索（stream API）
 			log("select employee data (stream)");
 			// no parameter : バインドパラメータ指定なしで検索（BEGIN-ENDで囲まれた範囲内のIF条件がすべてfalseのため、BEGIN-ENDの中が削除される）
@@ -164,7 +160,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * agent#queryWith() method sample
 	 */
 	private void queryWith() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// Use SQL literal instead of SQL file : sqlファイルの代わりにSQL文字列を使用した検索
 			log("select employee data.");
 			agent.queryWith("select * from employee").collect().forEach(m -> log(toS(m)));
@@ -179,23 +175,23 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * transaction api sample
 	 */
 	private void transaction() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			// select with bind parameter : バインドパラメータを設定して検索
 			log("select employee data (collect) set param(emp_no=1)");
-			long empNo = 1;
-			Map<String, Object> beforeEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
+			var empNo = 1L;
+			var beforeEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
 			log(toS(beforeEmp));
 
 			agent.required(() -> {
 				agent.update("employee/update_employee").param("empNo", empNo)
 						.param("birthDate", LocalDate.of(1971, 12, 1)).count();
 
-				Map<String, Object> updateEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
+				var updateEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
 				log(toS(updateEmp));
 
 				agent.setRollbackOnly();
 			});
-			Map<String, Object> afterEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
+			var afterEmp = agent.query("employee/select_employee").param("empNo", empNo).first();
 			log(toS(afterEmp));
 		}
 	}
@@ -204,7 +200,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * update api sample
 	 */
 	private void update() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			log("select department data (stream)");
 			agent.query("department/select_department").stream().forEach(e -> log(toS(e)));
 
@@ -226,7 +222,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * updateWith api sample
 	 */
 	private void updateWith() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			log("select department data (stream)");
 			agent.query("department/select_department").stream().forEach(e -> log(toS(e)));
 
@@ -248,7 +244,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 	 * batchInsert api sample
 	 */
 	private void batchInsert() {
-		try (SqlAgent agent = config.agent()) {
+		try (var agent = config.agent()) {
 			agent.required(() -> {
 				log("delete tables with sql literal");
 				// update with sql literal
@@ -263,14 +259,14 @@ public class SqlFileApiSample extends AbstractApiSample {
 				// batch insert (since v0.5.0)
 				log("department/insert_department batch insert.");
 				// department
-				int deptCount = agent.batch("department/insert_department")
+				var deptCount = agent.batch("department/insert_department")
 						.paramStream(getDataByFile(Paths.get("src/main/resources/data/department.tsv"))).count();
 				log("department/insert_department count={}", deptCount);
 
 				log("employee/insert_employee batch insert.");
 				// employee
 				// execute by 2 rows
-				int empCount = agent.batch("employee/insert_employee")
+				var empCount = agent.batch("employee/insert_employee")
 						.paramStream(getDataByFile(Paths.get("src/main/resources/data/employee.tsv")))
 						.by((ctx, row) -> ctx.batchCount() == 2).count();
 				log("employee/insert_employee count={}", empCount);
@@ -278,7 +274,7 @@ public class SqlFileApiSample extends AbstractApiSample {
 				log("relation/insert_dept_emp batch insert.");
 				// dept_emp
 				// log message when batch execute.
-				int deptEmpCount = agent.batch("relation/insert_dept_emp")
+				var deptEmpCount = agent.batch("relation/insert_dept_emp")
 						.paramStream(getDataByFile(Paths.get("src/main/resources/data/dept_emp.tsv")))
 						.batchWhen((agt, ctx) -> log("batch execute.")).count();
 				log("relation/insert_dept_emp count={}", deptEmpCount);
