@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.co.future</groupId>
 	<artifactId>uroborosql-sample</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>uroboroSQL Sample Application</name>
 	<description>uroboroSQL sample code project</description>
