@@ -235,7 +235,7 @@ encoding/<project>=UTF-8
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<src.encoding>${project.build.sourceEncoding}</src.encoding>
 		<doc.encoding>${project.build.sourceEncoding}</doc.encoding>
-		<spring-expression.version>5.3.24</spring-expression.version>
+		<spring-expression.version>5.3.39</spring-expression.version>
 		<jline.version>3.21.0</jline.version>
 		<jansi.version>2.4.0</jansi.version>
 		<junit.version>5.9.1</junit.version>
